@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XPTUSD Trading Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0f0e;
+  --surface: #131614;
+  --surface2: #1a1d1b;
+  --border: #252826;
+  --border2: #2e322f;
+  --text: #e8ebe8;
+  --muted: #6b726b;
+  --subtle: #3a3f3a;
+  --green: #4ade80;
+  --green-dim: #1a3324;
+  --green-border: #2d5c40;
+  --amber: #fbbf24;
+  --amber-dim: #2d2210;
+  --amber-border: #5c420d;
+  --red: #f87171;
+  --red-dim: #2d1515;
+  --red-border: #5c2020;
+  --accent: #4ade80;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.logo-pair { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--accent); letter-spacing: 0.05em; }
+.logo-label { font-size: 13px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; }
+
+.header-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.hstat { text-align: right; }
+.hstat-val { font-family: var(--mono); font-size: 16px; font-weight: 500; color: var(--text); }
+.hstat-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 1px; }
+
+/* NAV */
+nav {
+  display: flex;
+  gap: 2px;
+  padding: 0 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-btn {
+  padding: 14px 20px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: color 0.15s;
+}
+
+.nav-btn:hover { color: var(--text); }
+.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* MAIN */
+main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CHECKLIST */
+.check-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.score-big { font-family: var(--mono); font-size: 36px; font-weight: 500; color: var(--text); }
+.score-denom { font-family: var(--mono); font-size: 18px; color: var(--muted); }
+
+.verdict-pill {
+  padding: 8px 18px;
+  border-radius: 2px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+}
+.verdict-pill.go { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
+.verdict-pill.caution { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-border); }
+.verdict-pill.nogo { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-border); }
+
+.bar-track {
+  height: 3px;
+  background: var(--border2);
+  margin-bottom: 28px;
+  border-radius: 2px;
+}
+.bar-fill {
+  height: 3px;
+  border-radius: 2px;
+  transition: width 0.3s, background 0.3s;
+}
+
+.check-section {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.check-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+.section-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  width: 20px;
+}
+
+.section-name {
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text);
+  flex: 1;
+}
+
+.tf-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 3px 8px;
+  background: var(--subtle);
+  color: var(--muted);
+  border-radius: 2px;
+}
+
+.section-score {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 32px;
+  text-align: right;
+}
+
+.check-items { padding: 4px 0; }
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.check-item:hover { background: var(--surface2); }
+
+.check-item input[type=checkbox] {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.check-item label {
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  line-height: 1.4;
+  opacity: 0.85;
+}
+
+.check-item.checked label { opacity: 1; }
+
+.reset-btn {
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 8px 16px;
+  background: none;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+  transition: color 0.15s, border-color 0.15s;
+}
+.reset-btn:hover { color: var(--text); border-color: var(--subtle); }
+
+/* ANALYZE */
+.analyze-intro {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 24px;
+  padding: 16px;
+  border-left: 2px solid var(--accent);
+  background: var(--surface2);
+}
+
+.field-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.analyze-box {
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.analyze-box textarea {
+  width: 100%;
+  min-height: 140px;
+  font-size: 14px;
+  font-family: var(--mono);
+  padding: 16px;
+  background: var(--surface);
+  color: var(--text);
+  border: none;
+  resize: vertical;
+  line-height: 1.6;
+  outline: none;
+}
+
+.analyze-box textarea::placeholder { color: var(--muted); }
+
+.primary-btn {
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 12px 24px;
+  background: var(--accent);
+  color: #0d0f0e;
+  border: none;
+  cursor: pointer;
+  border-radius: 2px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: opacity 0.15s;
+}
+.primary-btn:hover { opacity: 0.85; }
+.primary-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* JOURNAL */
+.journal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 600px) { .journal-grid { grid-template-columns: 1fr; } }
+
+.journal-form {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  background: var(--surface);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-field.full { grid-column: 1 / -1; }
+
+.form-field input, .form-field select, .form-field textarea {
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 9px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 2px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+  border-color: var(--accent);
+}
+
+.form-field select option { background: var(--surface2); }
+.form-field textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+
+/* STATS */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.stat-tile .val {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text);
+  display: block;
+}
+
+.stat-tile .val.pos { color: var(--green); }
+.stat-tile .val.neg { color: var(--red); }
+
+.stat-tile .lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-top: 4px;
+  display: block;
+}
+
+/* TRADE LOG */
+.log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.log-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.trade-row {
+  display: grid;
+  grid-template-columns: 90px 60px 1fr 1fr 90px 80px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-family: var(--mono);
+  font-size: 13px;
+  transition: border-color 0.15s;
+}
+
+.trade-row:hover { border-color: var(--border2); }
+
+.trade-row .dir-long { color: var(--green); }
+.trade-row .dir-short { color: var(--red); }
+.trade-row .pnl-pos { color: var(--green); font-weight: 500; }
+.trade-row .pnl-neg { color: var(--red); font-weight: 500; }
+.trade-row .trade-notes { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--sans); }
+.trade-row .result-win { color: var(--green); font-size: 11px; }
+.trade-row .result-loss { color: var(--red); font-size: 11px; }
+.trade-row .result-be { color: var(--amber); font-size: 11px; }
+
+.trade-delete {
+  background: none;
+  border: none;
+  color: var(--subtle);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  text-align: right;
+  transition: color 0.15s;
+  font-family: var(--mono);
+}
+.trade-delete:hover { color: var(--red); }
+
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 13px;
+  border: 1px dashed var(--border2);
+  border-radius: 4px;
+}
+
+.col-headers {
+  display: grid;
+  grid-template-columns: 90px 60px 1fr 1fr 90px 80px;
+  gap: 12px;
+  padding: 8px 16px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-pair">XPT/USD</span>
+    <span class="logo-label">Trading Assistant</span>
+  </div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-val" id="h-trades">0</div>
+      <div class="hstat-lbl">Trades</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="h-wr">—</div>
+      <div class="hstat-lbl">Win rate</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="h-pnl">$0</div>
+      <div class="hstat-lbl">Total P&L</div>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="switchTab('checklist', this)">Checklist</button>
+  <button class="nav-btn" onclick="switchTab('journal', this)">Journal</button>
+</nav>
+
+<main>
+
+  <!-- CHECKLIST -->
+  <div class="panel active" id="tab-checklist">
+    <div class="check-header">
+      <div class="score-display">
+        <div>
+          <span class="score-big" id="score-num">0</span>
+          <span class="score-denom"> / 11</span>
+        </div>
+        <div class="verdict-pill nogo" id="verdict-pill">No trade</div>
+      </div>
+      <button class="reset-btn" onclick="resetChecklist()">Reset</button>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:0%;background:var(--red)"></div></div>
+
+    <!-- 1 -->
+    <div class="check-section">
+      <div class="check-section-header">
+        <span class="section-num">01</span>
+        <span class="section-name">Trend</span>
+        <span class="tf-tag">H4</span>
+        <span class="section-score" id="ss1">0/2</span>
+      </div>
+      <div class="check-items">
+        <div class="check-item" onclick="toggleCheck('c1')"><input type="checkbox" id="c1" onchange="updateScore()"><label for="c1">Clear bullish or bearish trend on H4</label></div>
+        <div class="check-item" onclick="toggleCheck('c2')"><input type="checkbox" id="c2" onchange="updateScore()"><label for="c2">Price is not ranging</label></div>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="check-section">
+      <div class="check-section-header">
+        <span class="section-num">02</span>
+        <span class="section-name">Location</span>
+        <span class="tf-tag">H1</span>
+        <span class="section-score" id="ss2">0/2</span>
+      </div>
+      <div class="check-items">
+        <div class="check-item" onclick="toggleCheck('c3')"><input type="checkbox" id="c3" onchange="updateScore()"><label for="c3">Price is at a meaningful level (trendline, structure, key zone)</label></div>
+        <div class="check-item" onclick="toggleCheck('c4')"><input type="checkbox" id="c4" onchange="updateScore()"><label for="c4">Price has returned to level (retraced)</label></div>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="check-section">
+      <div class="check-section-header">
+        <span class="section-num">03</span>
+        <span class="section-name">Confirmation</span>
+        <span class="tf-tag">M15</span>
+        <span class="section-score" id="ss3">0/2</span>
+      </div>
+      <div class="check-items">
+        <div class="check-item" onclick="toggleCheck('c5')"><input type="checkbox" id="c5" onchange="updateScore()"><label for="c5">Rejection candle at the level</label></div>
+        <div class="check-item" onclick="toggleCheck('c6')"><input type="checkbox" id="c6" onchange="updateScore()"><label for="c6">Engulfing candle in the direction of the H4 trend (enter at close)</label></div>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="check-section">
+      <div class="check-section-header">
+        <span class="section-num">04</span>
+        <span class="section-name">Risk</span>
+        <span class="tf-tag">Account</span>
+        <span class="section-score" id="ss4">0/2</span>
+      </div>
+      <div class="check-items">
+        <div class="check-item" onclick="toggleCheck('c7')"><input type="checkbox" id="c7" onchange="updateScore()"><label for="c7">SL placed logically (below wick, structure, or trendline)</label></div>
+        <div class="check-item" onclick="toggleCheck('c8')"><input type="checkbox" id="c8" onchange="updateScore()"><label for="c8">Max 2% risk applied</label></div>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="check-section">
+      <div class="check-section-header">
+        <span class="section-num">05</span>
+        <span class="section-name">Mental</span>
+        <span class="tf-tag">Before entry</span>
+        <span class="section-score" id="ss5">0/3</span>
+      </div>
+      <div class="check-items">
+        <div class="check-item" onclick="toggleCheck('c9')"><input type="checkbox" id="c9" onchange="updateScore()"><label for="c9">I am calm and not rushing this</label></div>
+        <div class="check-item" onclick="toggleCheck('c10')"><input type="checkbox" id="c10" onchange="updateScore()"><label for="c10">Price is at my level, not away from it</label></div>
+        <div class="check-item" onclick="toggleCheck('c11')"><input type="checkbox" id="c11" onchange="updateScore()"><label for="c11">All three timeframes align (H4 → H1 → M15)</label></div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:4px; font-family:var(--mono); font-size:12px; color:var(--muted); line-height:1.8;">
+      H4 → Direction &nbsp;|&nbsp; H1 → Location &nbsp;|&nbsp; M15 → Entry &nbsp;&nbsp;—&nbsp;&nbsp; All timeframes must align
+    </div>
+  </div>
+
+  <!-- JOURNAL -->
+  <div class="panel" id="tab-journal">
+    <div class="stats-strip">
+      <div class="stat-tile"><span class="val" id="s-trades">0</span><span class="lbl">Total trades</span></div>
+      <div class="stat-tile"><span class="val" id="s-wr">—</span><span class="lbl">Win rate</span></div>
+      <div class="stat-tile"><span class="val" id="s-pnl">$0</span><span class="lbl">Total P&L</span></div>
+      <div class="stat-tile"><span class="val" id="s-streak">—</span><span class="lbl">Current streak</span></div>
+    </div>
+
+    <div class="journal-form" style="margin-bottom:28px;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);font-family:var(--mono);margin-bottom:16px;">Log a trade</div>
+      <div class="form-row">
+        <div class="form-field"><label class="field-label">Date</label><input type="date" id="j-date"></div>
+        <div class="form-field"><label class="field-label">Direction</label>
+          <select id="j-dir"><option value="Long">Long</option><option value="Short">Short</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label class="field-label">Entry price</label><input type="number" id="j-entry" placeholder="2021.22" step="0.01"></div>
+        <div class="form-field"><label class="field-label">Exit price</label><input type="number" id="j-exit" placeholder="2057.88" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label class="field-label">Lot size</label><input type="number" id="j-lot" placeholder="0.5" step="0.01" value="0.5"></div>
+        <div class="form-field"><label class="field-label">Result</label>
+          <select id="j-result"><option value="Win">Win</option><option value="Loss">Loss</option><option value="Breakeven">Breakeven</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label class="field-label">Gross P&L ($)</label><input type="number" id="j-pnl" placeholder="3089" step="1"></div>
+        <div class="form-field"><label class="field-label">Commission ($)</label><input type="number" id="j-commission" placeholder="-4.50" step="0.01"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field"><label class="field-label">Swap ($)</label><input type="number" id="j-swap" placeholder="-1.50" step="0.01"></div>
+        <div class="form-field" style="justify-content:flex-end;">
+          <label class="field-label">Net P&L (auto)</label>
+          <div style="font-family:var(--mono);font-size:16px;font-weight:500;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--accent);" id="net-pnl-preview">$0</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field full"><label class="field-label">Notes</label>
+          <textarea id="j-notes" placeholder="What went well, what to improve, checklist compliance..."></textarea>
+        </div>
+      </div>
+      <button class="primary-btn" onclick="logTrade()">Log trade</button>
+    </div>
+
+    <div class="log-header">
+      <span class="log-title">Trade history</span>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span id="sync-status" style="font-family:var(--mono);font-size:11px;color:var(--muted);">Connecting...</span>
+        <button class="reset-btn" onclick="clearJournal()" style="font-size:11px;">Clear all</button>
+      </div>
+    </div>
+
+    <div class="col-headers" style="grid-template-columns: 90px 50px 80px 1fr 70px 70px 70px 50px;">
+      <span>Date</span><span>Dir</span><span>Lots</span><span>Notes</span><span>Comm+Swap</span><span>Gross</span><span>Net P&L</span><span></span>
+    </div>
+
+    <div id="trade-log"></div>
+  </div>
+
+</main>
+
+<script>
+var JSONBIN_KEY = '$2a$10$vqsPvFAIEeH88HU4ABywzuw.r5QZ0XeDLYs2/swtf8I5gPnckI1.C';
+var JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
+var BIN_ID_KEY = 'xptusd_bin_id';
+var binId = localStorage.getItem(BIN_ID_KEY) || null;
+var trades = [];
+var isSaving = false;
+
+function setStatus(msg, color) {
+  var el = document.getElementById('sync-status');
+  if (el) { el.textContent = msg; el.style.color = color || 'var(--muted)'; }
+}
+
+async function loadTrades() {
+  setStatus('Loading...', 'var(--amber)');
+  if (!binId) {
+    await createBin();
+    return;
+  }
+  try {
+    var res = await fetch(JSONBIN_URL + '/' + binId + '/latest', {
+      headers: { 'X-Access-Key': JSONBIN_KEY }
+    });
+    if (!res.ok) throw new Error('Load failed: ' + res.status);
+    var data = await res.json();
+    trades = data.record.trades || [];
+    setStatus('Synced', 'var(--green)');
+  } catch(e) {
+    setStatus('Load error — check connection', 'var(--red)');
+    trades = [];
+  }
+  renderJournal();
+}
+
+async function createBin() {
+  setStatus('Creating cloud storage...', 'var(--amber)');
+  try {
+    var res = await fetch(JSONBIN_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Access-Key': JSONBIN_KEY,
+        'X-Bin-Name': 'XPTUSD Journal',
+        'X-Bin-Private': 'true'
+      },
+      body: JSON.stringify({ trades: [] })
+    });
+    if (!res.ok) throw new Error('Create failed: ' + res.status);
+    var data = await res.json();
+    binId = data.metadata.id;
+    localStorage.setItem(BIN_ID_KEY, binId);
+    trades = [];
+    setStatus('Storage created — synced', 'var(--green)');
+  } catch(e) {
+    setStatus('Could not create storage: ' + e.message, 'var(--red)');
+  }
+  renderJournal();
+}
+
+async function saveTrades() {
+  if (!binId) { await createBin(); return; }
+  if (isSaving) return;
+  isSaving = true;
+  setStatus('Saving...', 'var(--amber)');
+  try {
+    var res = await fetch(JSONBIN_URL + '/' + binId, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Access-Key': JSONBIN_KEY
+      },
+      body: JSON.stringify({ trades: trades })
+    });
+    if (!res.ok) throw new Error('Save failed: ' + res.status);
+    setStatus('Saved ✓', 'var(--green)');
+  } catch(e) {
+    setStatus('Save error — ' + e.message, 'var(--red)');
+  }
+  isSaving = false;
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleCheck(id) {
+  var el = document.getElementById(id);
+  el.checked = !el.checked;
+  updateScore();
+}
+
+var sections = [
+  [1,2],[3,4],[5,6],[7,8],[9,10,11]
+];
+
+function updateScore() {
+  var total = 0;
+  sections.forEach(function(sec, i) {
+    var count = sec.filter(function(n) { return document.getElementById('c'+n).checked; }).length;
+    total += count;
+    document.getElementById('ss'+(i+1)).textContent = count + '/' + sec.length;
+  });
+
+  document.getElementById('score-num').textContent = total;
+  var pct = Math.round((total / 11) * 100);
+  var bar = document.getElementById('bar-fill');
+  bar.style.width = pct + '%';
+  var pill = document.getElementById('verdict-pill');
+
+  if (pct === 100) {
+    bar.style.background = 'var(--green)';
+    pill.className = 'verdict-pill go';
+    pill.textContent = 'Valid trade';
+  } else if (pct >= 75) {
+    bar.style.background = 'var(--amber)';
+    pill.className = 'verdict-pill caution';
+    pill.textContent = 'Almost ready';
+  } else {
+    bar.style.background = 'var(--red)';
+    pill.className = 'verdict-pill nogo';
+    pill.textContent = 'No trade';
+  }
+}
+
+function resetChecklist() {
+  for (var i = 1; i <= 11; i++) {
+    document.getElementById('c'+i).checked = false;
+  }
+  updateScore();
+}
+
+function updateNetPreview() {
+  var pnl = parseFloat(document.getElementById('j-pnl').value) || 0;
+  var comm = parseFloat(document.getElementById('j-commission').value) || 0;
+  var swap = parseFloat(document.getElementById('j-swap').value) || 0;
+  var net = pnl + comm + swap;
+  var el = document.getElementById('net-pnl-preview');
+  el.textContent = (net >= 0 ? '+' : '') + '$' + net.toFixed(2);
+  el.style.color = net >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+async function logTrade() {
+  var date = document.getElementById('j-date').value;
+  var entry = document.getElementById('j-entry').value;
+  if (!date || !entry) { alert('Please fill in at least date and entry price.'); return; }
+
+  var pnl = parseFloat(document.getElementById('j-pnl').value) || 0;
+  var comm = parseFloat(document.getElementById('j-commission').value) || 0;
+  var swap = parseFloat(document.getElementById('j-swap').value) || 0;
+
+  var trade = {
+    id: Date.now(),
+    date: date,
+    dir: document.getElementById('j-dir').value,
+    entry: parseFloat(document.getElementById('j-entry').value) || 0,
+    exit: parseFloat(document.getElementById('j-exit').value) || 0,
+    lot: parseFloat(document.getElementById('j-lot').value) || 0.5,
+    pnl: pnl,
+    commission: comm,
+    swap: swap,
+    netPnl: pnl + comm + swap,
+    result: document.getElementById('j-result').value,
+    notes: document.getElementById('j-notes').value
+  };
+
+  trades.unshift(trade);
+  renderJournal();
+  await saveTrades();
+
+  document.getElementById('j-entry').value = '';
+  document.getElementById('j-exit').value = '';
+  document.getElementById('j-pnl').value = '';
+  document.getElementById('j-commission').value = '';
+  document.getElementById('j-swap').value = '';
+  document.getElementById('j-notes').value = '';
+  document.getElementById('net-pnl-preview').textContent = '$0';
+  document.getElementById('net-pnl-preview').style.color = 'var(--accent)';
+}
+
+async function deleteTrade(id) {
+  trades = trades.filter(function(t) { return t.id !== id; });
+  renderJournal();
+  await saveTrades();
+}
+
+async function clearJournal() {
+  if (confirm('Clear all trade history? This cannot be undone.')) {
+    trades = [];
+    renderJournal();
+    await saveTrades();
+  }
+}
+
+function renderJournal() {
+  var wins = trades.filter(function(t) { return t.result === 'Win'; }).length;
+  var totalNet = trades.reduce(function(a, t) { return a + (t.netPnl !== undefined ? t.netPnl : t.pnl); }, 0);
+
+  document.getElementById('s-trades').textContent = trades.length;
+  document.getElementById('h-trades').textContent = trades.length;
+
+  var wr = trades.length ? Math.round((wins / trades.length) * 100) + '%' : '—';
+  document.getElementById('s-wr').textContent = wr;
+  document.getElementById('h-wr').textContent = wr;
+
+  var pnlStr = (totalNet >= 0 ? '+' : '') + '$' + totalNet.toFixed(0);
+  document.getElementById('s-pnl').textContent = pnlStr;
+  document.getElementById('h-pnl').textContent = pnlStr;
+
+  var pnlEl = document.getElementById('s-pnl');
+  pnlEl.className = 'val' + (totalNet > 0 ? ' pos' : totalNet < 0 ? ' neg' : '');
+
+  var streak = 0;
+  if (trades.length > 0) {
+    var first = trades[0].result;
+    for (var i = 0; i < trades.length; i++) {
+      if (trades[i].result === first) streak++;
+      else break;
+    }
+    var streakStr = (first === 'Win' ? '+' : first === 'Loss' ? '-' : '') + streak + (first === 'Win' ? 'W' : first === 'Loss' ? 'L' : 'BE');
+    document.getElementById('s-streak').textContent = streakStr;
+  } else {
+    document.getElementById('s-streak').textContent = '—';
+  }
+
+  var log = document.getElementById('trade-log');
+  if (trades.length === 0) {
+    log.innerHTML = '<div class="empty-state">No trades logged yet</div>';
+    return;
+  }
+
+  log.innerHTML = trades.map(function(t) {
+    var dirClass = t.dir === 'Long' ? 'dir-long' : 'dir-short';
+    var net = t.netPnl !== undefined ? t.netPnl : t.pnl;
+    var gross = t.pnl || 0;
+    var comm = t.commission || 0;
+    var swap = t.swap || 0;
+    var costs = comm + swap;
+    var netClass = net >= 0 ? 'pnl-pos' : 'pnl-neg';
+    var grossClass = gross >= 0 ? 'pnl-pos' : 'pnl-neg';
+    var costsStr = costs !== 0 ? (costs > 0 ? '+' : '') + '$' + costs.toFixed(2) : '—';
+    var netStr = (net >= 0 ? '+' : '') + '$' + net.toFixed(0);
+    var grossStr = (gross >= 0 ? '+' : '') + '$' + gross.toFixed(0);
+    var lot = t.lot || 0.5;
+    return '<div class="trade-row" style="grid-template-columns:90px 50px 80px 1fr 70px 70px 70px 50px;">' +
+      '<span>' + t.date + '</span>' +
+      '<span class="' + dirClass + '">' + t.dir + '</span>' +
+      '<span>' + lot + ' lot</span>' +
+      '<span class="trade-notes">' + (t.notes || '—') + '</span>' +
+      '<span style="color:var(--muted);font-size:12px;">' + costsStr + '</span>' +
+      '<span class="' + grossClass + '">' + grossStr + '</span>' +
+      '<span class="' + netClass + '">' + netStr + '</span>' +
+      '<span style="text-align:right;"><button class="trade-delete" onclick="deleteTrade(' + t.id + ')">×</button></span>' +
+      '</div>';
+  }).join('');
+}
+
+// Init
+document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+updateScore();
+loadTrades();
+['j-pnl','j-commission','j-swap'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', updateNetPreview);
+});
+</script>
+</body>
+</html>
