@@ -656,26 +656,6 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
 
   <!-- GOALS -->
   <div class="panel" id="tab-goals">
-
-    <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:20px;">
-      Goal: <span style="color:var(--accent);">$10,000 net / month</span> &nbsp;|&nbsp; FTMO split: 80% you / 20% FTMO
-    </div>
-
-    <!-- Lot size reference -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;">
-        <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">0.5 lots</div>
-        <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);">$2,000</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px;">per 4,000 points</div>
-      </div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;">
-        <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">0.25 lots</div>
-        <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);">$1,000</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px;">per 4,000 points</div>
-      </div>
-    </div>
-
-    <!-- Tier helper -->
     <style>
       .tier-block { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:16px 20px; margin-bottom:10px; }
       .tier-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px; }
@@ -688,93 +668,134 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
       .tier-header { display:flex; align-items:center; justify-content:space-between; }
       .tier-name { font-size:13px; font-weight:500; color:var(--text); }
       .tier-badge { font-family:var(--mono); font-size:11px; padding:3px 10px; background:var(--surface2); color:var(--muted); border-radius:2px; border:0.5px solid var(--border2); }
+      .payout-row { display:grid; grid-template-columns:100px 80px 80px 1fr; gap:12px; align-items:center; padding:10px 14px; background:var(--surface); border:1px solid var(--border); border-radius:4px; margin-bottom:6px; font-family:var(--mono); font-size:13px; }
+      .archive-card { background:var(--surface); border:1px solid var(--border2); border-radius:4px; padding:12px 16px; margin-bottom:8px; }
+      .archive-card summary { font-family:var(--mono); font-size:12px; color:var(--muted); cursor:pointer; }
+      .danger-btn { font-family:var(--mono); font-size:12px; padding:8px 16px; background:none; border:1px solid var(--red-border); color:var(--red); cursor:pointer; border-radius:2px; letter-spacing:0.05em; transition:background 0.15s; }
+      .danger-btn:hover { background:var(--red-dim); }
     </style>
 
-    <!-- Tier 1 -->
-    <div class="tier-block">
-      <div class="tier-header">
-        <span class="tier-name">Tier 1</span>
-        <span class="tier-badge">$10,000 net / month</span>
+    <!-- CYCLE TRACKER -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:20px;margin-bottom:16px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div>
+          <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:4px;">2-week cycle</div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--muted);">Started: <span id="cycle-start-label">—</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:var(--mono);font-size:32px;font-weight:500;color:var(--text);" id="cycle-total">$0</div>
+          <div style="font-size:12px;color:var(--muted);">bruto this cycle</div>
+        </div>
       </div>
-      <div class="tier-grid">
-        <div>
-          <div class="tier-col-title">Bruto (before split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$625</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$3,125</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$12,500</span></div>
+
+      <!-- Progress bar -->
+      <div style="position:relative;margin-bottom:6px;">
+        <div style="height:8px;background:var(--surface2);border-radius:4px;overflow:visible;position:relative;">
+          <div id="cycle-bar" style="height:8px;border-radius:4px;background:var(--green);transition:width 0.4s;width:0%;max-width:100%;position:relative;z-index:1;"></div>
+          <div style="position:absolute;top:-4px;left:10%;width:1px;height:16px;background:var(--border2);z-index:2;"></div>
+          <div style="position:absolute;top:-4px;left:25%;width:1px;height:16px;background:var(--amber);opacity:0.6;z-index:2;"></div>
+          <div style="position:absolute;top:-4px;left:50%;width:1px;height:16px;background:var(--amber);opacity:0.8;z-index:2;"></div>
         </div>
-        <div>
-          <div class="tier-col-title">Netto (after split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$500</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$2,500</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$10,000</span></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:16px;">
+        <span>$0</span><span>T1 $625</span><span>T2 $1,563</span><span>T3 $3,125</span><span style="color:var(--accent);">T4 $6,250</span>
+      </div>
+
+      <!-- Tier pills -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px;" id="tier-pills">
+        <div id="pill-t1" style="text-align:center;padding:6px 4px;border-radius:4px;background:var(--surface2);border:0.5px solid var(--border2);font-family:var(--mono);font-size:11px;color:var(--muted);">T1 $625</div>
+        <div id="pill-t2" style="text-align:center;padding:6px 4px;border-radius:4px;background:var(--surface2);border:0.5px solid var(--border2);font-family:var(--mono);font-size:11px;color:var(--muted);">T2 $1,563</div>
+        <div id="pill-t3" style="text-align:center;padding:6px 4px;border-radius:4px;background:var(--surface2);border:0.5px solid var(--border2);font-family:var(--mono);font-size:11px;color:var(--muted);">T3 $3,125</div>
+        <div id="pill-t4" style="text-align:center;padding:6px 4px;border-radius:4px;background:var(--surface2);border:0.5px solid var(--accent);font-family:var(--mono);font-size:11px;color:var(--accent);">T4 $6,250</div>
+      </div>
+
+      <!-- Cycle start setter -->
+      <div id="cycle-start-setter" style="display:none;background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:14px;margin-bottom:16px;">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.1em;">Set cycle start date</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="date" id="cycle-start-input" style="font-family:var(--mono);font-size:13px;padding:7px 10px;background:var(--surface);border:1px solid var(--border2);border-radius:2px;color:var(--text);outline:none;flex:1;">
+          <button class="primary-btn" onclick="saveCycleStart()" style="padding:8px 16px;font-size:12px;">Save</button>
         </div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="primary-btn" onclick="requestPayout()" style="flex:1;">Request payout — start new cycle</button>
+        <button class="reset-btn" onclick="showCycleStartSetter()" style="font-size:12px;">Set start date</button>
+        <button class="reset-btn" onclick="exportData()" style="font-size:12px;">Export</button>
       </div>
     </div>
 
-    <!-- Tier 2 -->
-    <div class="tier-block">
-      <div class="tier-header">
-        <span class="tier-name">Tier 2</span>
-        <span class="tier-badge">$5,000 net / month</span>
+    <!-- PAYOUT HISTORY -->
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">Payout history</span>
+        <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">Total netto: <span id="payout-total-label" style="color:var(--green);">$0</span></span>
       </div>
-      <div class="tier-grid">
-        <div>
-          <div class="tier-col-title">Bruto (before split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$312.50</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$1,562.50</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$6,250</span></div>
-        </div>
-        <div>
-          <div class="tier-col-title">Netto (after split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$250</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$1,250</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$5,000</span></div>
-        </div>
+      <div style="display:grid;grid-template-columns:100px 80px 80px 1fr;gap:12px;padding:6px 14px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:4px;">
+        <span>Date</span><span>Bruto</span><span>Netto</span><span>Notes</span>
+      </div>
+      <div id="payout-history-log">
+        <div style="text-align:center;padding:24px;color:var(--muted);font-family:var(--mono);font-size:13px;border:1px dashed var(--border2);border-radius:4px;">No payouts yet</div>
       </div>
     </div>
 
-    <!-- Tier 3 -->
-    <div class="tier-block">
-      <div class="tier-header">
-        <span class="tier-name">Tier 3</span>
-        <span class="tier-badge">$2,500 net / month</span>
+    <!-- ARCHIVE -->
+    <div style="margin-bottom:28px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">Archive account</span>
       </div>
-      <div class="tier-grid">
-        <div>
-          <div class="tier-col-title">Bruto (before split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$156.25</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$781.25</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$3,125</span></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:16px;margin-bottom:10px;">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:10px;">Archive current journal + payouts and start fresh</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div><label style="font-family:var(--mono);font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">FTMO Account #</label><input type="text" id="archive-account" placeholder="e.g. 123456" style="width:100%;font-family:var(--mono);font-size:13px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);outline:none;"></div>
+          <div><label style="font-family:var(--mono);font-size:11px;color:var(--muted);display:block;margin-bottom:4px;">FTMO Start Date</label><input type="date" id="archive-date" style="width:100%;font-family:var(--mono);font-size:13px;padding:7px 10px;background:var(--surface2);border:1px solid var(--border2);border-radius:2px;color:var(--text);outline:none;"></div>
         </div>
-        <div>
-          <div class="tier-col-title">Netto (after split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$125</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$625</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$2,500</span></div>
-        </div>
+        <button class="danger-btn" onclick="archiveAccount()" style="width:100%;">Archive this account & start fresh</button>
+      </div>
+      <div id="archive-list"></div>
+    </div>
+
+    <!-- REFERENCE TIERS -->
+    <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:12px;">Reference — 2-week targets &nbsp;|&nbsp; FTMO 80/20 split</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;">
+        <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">0.5 lots</div>
+        <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);">$2,000</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">per 4,000 points</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;">
+        <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">0.25 lots</div>
+        <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);">$1,000</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">per 4,000 points</div>
       </div>
     </div>
 
-    <!-- Tier 4 -->
     <div class="tier-block">
-      <div class="tier-header">
-        <span class="tier-name">Tier 4</span>
-        <span class="tier-badge">$1,000 net / month</span>
-      </div>
+      <div class="tier-header"><span class="tier-name">Tier 1</span><span class="tier-badge">$625 bruto / 2 weeks → $500 netto</span></div>
       <div class="tier-grid">
-        <div>
-          <div class="tier-col-title">Bruto (before split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$62.50</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$312.50</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$1,250</span></div>
-        </div>
-        <div>
-          <div class="tier-col-title">Netto (after split)</div>
-          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$50</span></div>
-          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$250</span></div>
-          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$1,000</span></div>
-        </div>
+        <div><div class="tier-col-title">Bruto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$62.50</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$312.50</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$625</span></div></div>
+        <div><div class="tier-col-title">Netto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$50</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$250</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$500</span></div></div>
+      </div>
+    </div>
+    <div class="tier-block">
+      <div class="tier-header"><span class="tier-name">Tier 2</span><span class="tier-badge">$1,562.50 bruto / 2 weeks → $1,250 netto</span></div>
+      <div class="tier-grid">
+        <div><div class="tier-col-title">Bruto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$156.25</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$781.25</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$1,562.50</span></div></div>
+        <div><div class="tier-col-title">Netto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$125</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$625</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$1,250</span></div></div>
+      </div>
+    </div>
+    <div class="tier-block">
+      <div class="tier-header"><span class="tier-name">Tier 3</span><span class="tier-badge">$3,125 bruto / 2 weeks → $2,500 netto</span></div>
+      <div class="tier-grid">
+        <div><div class="tier-col-title">Bruto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$312.50</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$1,562.50</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$3,125</span></div></div>
+        <div><div class="tier-col-title">Netto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$250</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$1,250</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$2,500</span></div></div>
+      </div>
+    </div>
+    <div class="tier-block">
+      <div class="tier-header"><span class="tier-name">Tier 4 — Goal</span><span class="tier-badge">$6,250 bruto / 2 weeks → $5,000 netto</span></div>
+      <div class="tier-grid">
+        <div><div class="tier-col-title">Bruto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$625</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$3,125</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$6,250</span></div></div>
+        <div><div class="tier-col-title">Netto</div><div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$500</span></div><div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$2,500</span></div><div class="tier-row"><span class="tier-label">2 weeks</span><span class="tier-val highlight">$5,000</span></div></div>
       </div>
     </div>
 
@@ -830,9 +851,11 @@ async function attemptLogin() {
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-wrapper').style.display = 'block';
+  loadGoalsData();
   loadTrades();
   document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
   updateScore();
+  renderArchives();
 }
 
 function handleLoginKey(e) {
@@ -1084,9 +1107,193 @@ function renderJournal() {
       '<span style="text-align:right;"><button class="trade-delete" onclick="deleteTrade(' + t.id + ')">×</button></span>' +
       '</div>';
   }).join('');
+  updateCycleTracker();
+  renderPayoutHistory();
 }
 
-// Init
+// ── GOALS / CYCLE TRACKER ──────────────────────────────────────────
+var GOALS_KEY = 'xptusd_goals_v1';
+var goalsData = { cycleStart: null, payouts: [], archives: [] };
+var TIERS = [625, 1562.5, 3125, 6250];
+
+function loadGoalsData() {
+  try {
+    var stored = localStorage.getItem(GOALS_KEY);
+    if (stored) goalsData = JSON.parse(stored);
+  } catch(e) { goalsData = { cycleStart: null, payouts: [], archives: [] }; }
+}
+
+function saveGoalsData() {
+  try { localStorage.setItem(GOALS_KEY, JSON.stringify(goalsData)); } catch(e) {}
+}
+
+function getCycleTotal() {
+  if (!goalsData.cycleStart) return 0;
+  var start = new Date(goalsData.cycleStart);
+  return trades.filter(function(t) {
+    return new Date(t.date) >= start;
+  }).reduce(function(sum, t) { return sum + (t.pnl || 0); }, 0);
+}
+
+function updateCycleTracker() {
+  if (!goalsData.cycleStart) {
+    document.getElementById('cycle-start-label').textContent = 'Not set — click Set start date';
+    document.getElementById('cycle-total').textContent = '$0';
+    document.getElementById('cycle-bar').style.width = '0%';
+    return;
+  }
+  var total = getCycleTotal();
+  var maxTier = 6250;
+  var pct = Math.min((total / maxTier) * 100, 100);
+  document.getElementById('cycle-start-label').textContent = goalsData.cycleStart;
+  document.getElementById('cycle-total').textContent = (total >= 0 ? '+' : '') + '$' + total.toFixed(0);
+  document.getElementById('cycle-bar').style.width = pct + '%';
+  document.getElementById('cycle-bar').style.background = total >= maxTier ? 'var(--accent)' : total >= TIERS[2] ? 'var(--green)' : total >= TIERS[1] ? 'var(--amber)' : total >= TIERS[0] ? 'var(--amber)' : 'var(--green)';
+
+  var pillIds = ['pill-t1','pill-t2','pill-t3','pill-t4'];
+  TIERS.forEach(function(t, i) {
+    var el = document.getElementById(pillIds[i]);
+    if (total >= t) {
+      el.style.background = 'var(--green-dim)';
+      el.style.borderColor = 'var(--green-border)';
+      el.style.color = 'var(--green)';
+    } else {
+      el.style.background = 'var(--surface2)';
+      el.style.borderColor = i === 3 ? 'var(--accent)' : 'var(--border2)';
+      el.style.color = i === 3 ? 'var(--accent)' : 'var(--muted)';
+    }
+  });
+}
+
+function renderPayoutHistory() {
+  var log = document.getElementById('payout-history-log');
+  var payouts = goalsData.payouts || [];
+  if (payouts.length === 0) {
+    log.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-family:var(--mono);font-size:13px;border:1px dashed var(--border2);border-radius:4px;">No payouts yet</div>';
+    document.getElementById('payout-total-label').textContent = '$0';
+    return;
+  }
+  var totalNetto = payouts.reduce(function(s, p) { return s + (p.netto || 0); }, 0);
+  document.getElementById('payout-total-label').textContent = '$' + totalNetto.toFixed(0);
+  log.innerHTML = payouts.slice().reverse().map(function(p) {
+    return '<div class="payout-row">' +
+      '<span>' + p.date + '</span>' +
+      '<span style="color:var(--green);">$' + p.bruto.toFixed(0) + '</span>' +
+      '<span style="color:var(--green);">$' + p.netto.toFixed(0) + '</span>' +
+      '<span style="color:var(--muted);font-size:12px;">' + (p.note || '—') + '</span>' +
+      '</div>';
+  }).join('');
+}
+
+function renderArchives() {
+  var list = document.getElementById('archive-list');
+  var archives = goalsData.archives || [];
+  if (archives.length === 0) { list.innerHTML = ''; return; }
+  list.innerHTML = archives.map(function(a, i) {
+    var tradeCount = (a.trades || []).length;
+    var payoutCount = (a.payouts || []).length;
+    var totalNetto = (a.payouts || []).reduce(function(s, p) { return s + (p.netto || 0); }, 0);
+    return '<details class="archive-card">' +
+      '<summary>📁 ' + a.label + ' &nbsp;—&nbsp; ' + tradeCount + ' trades, $' + totalNetto.toFixed(0) + ' netto earned</summary>' +
+      '<div style="margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--muted);">' +
+      '<div>Trades logged: ' + tradeCount + '</div>' +
+      '<div>Payouts: ' + payoutCount + '</div>' +
+      '<div>Total netto: $' + totalNetto.toFixed(0) + '</div>' +
+      '</div></details>';
+  }).join('');
+}
+
+function showCycleStartSetter() {
+  var setter = document.getElementById('cycle-start-setter');
+  setter.style.display = setter.style.display === 'none' ? 'block' : 'none';
+}
+
+function saveCycleStart() {
+  var val = document.getElementById('cycle-start-input').value;
+  if (!val) return;
+  goalsData.cycleStart = val;
+  saveGoalsData();
+  document.getElementById('cycle-start-setter').style.display = 'none';
+  updateCycleTracker();
+}
+
+function requestPayout() {
+  var total = getCycleTotal();
+  if (total <= 0) { alert('No positive P&L in this cycle to pay out.'); return; }
+  var netto = total * 0.8;
+  var today = new Date().toISOString().split('T')[0];
+  var note = prompt('Add a note for this payout (optional):') || '';
+  goalsData.payouts.push({ date: today, bruto: total, netto: netto, note: note });
+  goalsData.cycleStart = today;
+  saveGoalsData();
+  renderPayoutHistory();
+  updateCycleTracker();
+}
+
+function archiveAccount() {
+  var acct = document.getElementById('archive-account').value.trim();
+  var date = document.getElementById('archive-date').value;
+  if (!acct || !date) { alert('Please fill in both FTMO account number and start date.'); return; }
+  if (!confirm('This will archive your current journal and payouts and start a fresh account. Continue?')) return;
+  var label = 'FTMO #' + acct + ' — started ' + date;
+  goalsData.archives = goalsData.archives || [];
+  goalsData.archives.push({ label: label, trades: trades.slice(), payouts: (goalsData.payouts || []).slice() });
+  goalsData.payouts = [];
+  goalsData.cycleStart = null;
+  saveGoalsData();
+  trades = [];
+  saveTrades();
+  renderJournal();
+  renderPayoutHistory();
+  renderArchives();
+  updateCycleTracker();
+  document.getElementById('archive-account').value = '';
+  document.getElementById('archive-date').value = '';
+  alert('Account archived. Fresh journal started.');
+}
+
+function exportData() {
+  var fmt = confirm('Click OK for CSV, Cancel for plain text summary');
+  if (fmt) exportCSV(); else exportText();
+}
+
+function exportCSV() {
+  var rows = ['Date,Direction,Lots,Entry,Exit,Gross,Commission,Swap,Net,Result,Notes'];
+  trades.forEach(function(t) {
+    rows.push([t.date, t.dir, t.lot||0.5, t.entry, t.exit||'', t.pnl||0, t.commission||0, t.swap||0, t.netPnl||t.pnl||0, t.result, '"'+(t.notes||'').replace(/"/g,"'")+'"'].join(','));
+  });
+  rows.push('');
+  rows.push('PAYOUT HISTORY');
+  rows.push('Date,Bruto,Netto,Note');
+  (goalsData.payouts || []).forEach(function(p) {
+    rows.push([p.date, p.bruto.toFixed(2), p.netto.toFixed(2), '"'+(p.note||'')+'"'].join(','));
+  });
+  var blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'xptusd_journal_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+function exportText() {
+  var lines = ['XPTUSD Trading Journal Export — ' + new Date().toLocaleDateString(), ''];
+  lines.push('TRADES (' + trades.length + ')');
+  trades.forEach(function(t) {
+    lines.push(t.date + ' | ' + t.dir + ' | Entry ' + t.entry + ' | Net $' + (t.netPnl||t.pnl||0).toFixed(0) + ' | ' + t.result + (t.notes ? ' | ' + t.notes : ''));
+  });
+  lines.push('');
+  lines.push('PAYOUTS (' + (goalsData.payouts||[]).length + ')');
+  (goalsData.payouts||[]).forEach(function(p) {
+    lines.push(p.date + ' | Bruto $' + p.bruto.toFixed(0) + ' | Netto $' + p.netto.toFixed(0) + (p.note ? ' | ' + p.note : ''));
+  });
+  var blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'xptusd_journal_' + new Date().toISOString().split('T')[0] + '.txt';
+  a.click();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
 ['j-pnl','j-commission','j-swap'].forEach(function(id) {
   document.getElementById(id).addEventListener('input', updateNetPreview);
 });
