@@ -729,7 +729,10 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
     <div style="margin-bottom:28px;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
         <span style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);">Payout history</span>
-        <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">Total netto: <span id="payout-total-label" style="color:var(--green);">$0</span></span>
+        <div style="display:flex;gap:20px;align-items:center;">
+          <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">Now: <span id="payout-total-label" style="color:var(--green);">$0</span></span>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--muted);">Total paid: <span id="payout-alltime-label" style="color:var(--accent);">$0</span></span>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:100px 80px 80px 1fr;gap:12px;padding:6px 14px;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:4px;">
         <span>Date</span><span>Bruto</span><span>Netto</span><span>Notes</span>
@@ -1175,13 +1178,14 @@ function updateCycleTracker() {
 function renderPayoutHistory() {
   var log = document.getElementById('payout-history-log');
   var payouts = goalsData.payouts || [];
+  var cycleNetto = getCycleTotal() * 0.8;
+  var totalPaid = payouts.reduce(function(s, p) { return s + (p.netto || 0); }, 0);
+  document.getElementById('payout-total-label').textContent = (cycleNetto >= 0 ? '+' : '') + '$' + cycleNetto.toFixed(0);
+  document.getElementById('payout-alltime-label').textContent = '$' + totalPaid.toFixed(0);
   if (payouts.length === 0) {
     log.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-family:var(--mono);font-size:13px;border:1px dashed var(--border2);border-radius:4px;">No payouts yet</div>';
-    document.getElementById('payout-total-label').textContent = '$0';
     return;
   }
-  var totalNetto = payouts.reduce(function(s, p) { return s + (p.netto || 0); }, 0);
-  document.getElementById('payout-total-label').textContent = '$' + totalNetto.toFixed(0);
   log.innerHTML = payouts.slice().reverse().map(function(p) {
     return '<div class="payout-row">' +
       '<span>' + fmtDate(p.date) + '</span>' +
