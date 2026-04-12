@@ -498,6 +498,7 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
 <nav>
   <button class="nav-btn active" onclick="switchTab('checklist', this)">Checklist</button>
   <button class="nav-btn" onclick="switchTab('journal', this)">Journal</button>
+  <button class="nav-btn" onclick="switchTab('goals', this)">Goals</button>
 </nav>
 
 <main>
@@ -651,6 +652,132 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
     </div>
 
     <div id="trade-log"></div>
+  </div>
+
+  <!-- GOALS -->
+  <div class="panel" id="tab-goals">
+
+    <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:20px;">
+      Goal: <span style="color:var(--accent);">$10,000 net / month</span> &nbsp;|&nbsp; FTMO split: 80% you / 20% FTMO
+    </div>
+
+    <!-- Lot size reference -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;">
+        <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">0.5 lots</div>
+        <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);">$2,000</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">per 4,000 points</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 16px;">
+        <div style="font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:8px;">0.25 lots</div>
+        <div style="font-family:var(--mono);font-size:22px;font-weight:500;color:var(--text);">$1,000</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:4px;">per 4,000 points</div>
+      </div>
+    </div>
+
+    <!-- Tier helper -->
+    <style>
+      .tier-block { background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:16px 20px; margin-bottom:10px; }
+      .tier-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:12px; }
+      .tier-col-title { font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:10px; }
+      .tier-row { display:flex; justify-content:space-between; align-items:center; padding:5px 0; border-bottom:0.5px solid var(--border); }
+      .tier-row:last-child { border-bottom:none; }
+      .tier-label { font-size:12px; color:var(--muted); font-family:var(--mono); }
+      .tier-val { font-family:var(--mono); font-size:13px; font-weight:500; color:var(--text); }
+      .tier-val.highlight { color:var(--accent); font-size:14px; }
+      .tier-header { display:flex; align-items:center; justify-content:space-between; }
+      .tier-name { font-size:13px; font-weight:500; color:var(--text); }
+      .tier-badge { font-family:var(--mono); font-size:11px; padding:3px 10px; background:var(--surface2); color:var(--muted); border-radius:2px; border:0.5px solid var(--border2); }
+    </style>
+
+    <!-- Tier 1 -->
+    <div class="tier-block">
+      <div class="tier-header">
+        <span class="tier-name">Tier 1</span>
+        <span class="tier-badge">$10,000 net / month</span>
+      </div>
+      <div class="tier-grid">
+        <div>
+          <div class="tier-col-title">Bruto (before split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$625</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$3,125</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$12,500</span></div>
+        </div>
+        <div>
+          <div class="tier-col-title">Netto (after split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$500</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$2,500</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$10,000</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier 2 -->
+    <div class="tier-block">
+      <div class="tier-header">
+        <span class="tier-name">Tier 2</span>
+        <span class="tier-badge">$5,000 net / month</span>
+      </div>
+      <div class="tier-grid">
+        <div>
+          <div class="tier-col-title">Bruto (before split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$312.50</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$1,562.50</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$6,250</span></div>
+        </div>
+        <div>
+          <div class="tier-col-title">Netto (after split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$250</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$1,250</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$5,000</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier 3 -->
+    <div class="tier-block">
+      <div class="tier-header">
+        <span class="tier-name">Tier 3</span>
+        <span class="tier-badge">$2,500 net / month</span>
+      </div>
+      <div class="tier-grid">
+        <div>
+          <div class="tier-col-title">Bruto (before split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$156.25</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$781.25</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$3,125</span></div>
+        </div>
+        <div>
+          <div class="tier-col-title">Netto (after split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$125</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$625</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$2,500</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tier 4 -->
+    <div class="tier-block">
+      <div class="tier-header">
+        <span class="tier-name">Tier 4</span>
+        <span class="tier-badge">$1,000 net / month</span>
+      </div>
+      <div class="tier-grid">
+        <div>
+          <div class="tier-col-title">Bruto (before split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$62.50</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$312.50</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$1,250</span></div>
+        </div>
+        <div>
+          <div class="tier-col-title">Netto (after split)</div>
+          <div class="tier-row"><span class="tier-label">Day</span><span class="tier-val">$50</span></div>
+          <div class="tier-row"><span class="tier-label">Week</span><span class="tier-val">$250</span></div>
+          <div class="tier-row"><span class="tier-label">Month</span><span class="tier-val highlight">$1,000</span></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </main>
