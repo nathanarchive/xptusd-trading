@@ -459,6 +459,21 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
 </head>
 <body>
 
+<div id="login-screen" style="display:none; position:fixed; inset:0; background:var(--bg); z-index:9999; align-items:center; justify-content:center; flex-direction:column; gap:24px;">
+  <div style="text-align:center; margin-bottom:8px;">
+    <div style="font-family:var(--mono); font-size:20px; font-weight:500; color:var(--accent); letter-spacing:0.05em;">XPT/USD</div>
+    <div style="font-size:12px; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; margin-top:4px;">Trading Assistant</div>
+  </div>
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--border-radius-lg); padding:32px; width:300px;">
+    <div style="font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:12px;">Password</div>
+    <input type="password" id="login-password" onkeydown="handleLoginKey(event)" placeholder="Enter password" style="width:100%; font-family:var(--mono); font-size:14px; padding:10px 12px; background:var(--surface2); border:1px solid var(--border2); border-radius:4px; color:var(--text); outline:none; margin-bottom:12px;">
+    <div id="login-error" style="display:none; font-family:var(--mono); font-size:12px; color:var(--red); margin-bottom:12px;">Incorrect password</div>
+    <button onclick="attemptLogin()" style="width:100%; font-family:var(--mono); font-size:13px; padding:11px; background:var(--accent); color:#0d0f0e; border:none; border-radius:4px; cursor:pointer; font-weight:500; letter-spacing:0.05em;">Unlock</button>
+  </div>
+</div>
+
+<div id="app-wrapper" style="display:none;">
+
 <header>
   <div class="logo">
     <span class="logo-pair">XPT/USD</span>
@@ -643,10 +658,59 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
 <script>
 var JSONBIN_KEY = '$2a$10$vqsPvFAIEeH88HU4ABywzuw.r5QZ0XeDLYs2/swtf8I5gPnckI1.C';
 var JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
-var BIN_ID_KEY = 'xptusd_bin_id';
-var binId = localStorage.getItem(BIN_ID_KEY) || null;
+var binId = '69d94946aaba882197e5f9cb';
 var trades = [];
 var isSaving = false;
+
+// Simple hash function for password check
+async function hashPassword(password) {
+  var encoder = new TextEncoder();
+  var data = encoder.encode(password + 'xptusd_salt_2026');
+  var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  var hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+
+var STORED_HASH = 'a4c8e2f1b7d9a3e5c6f8b2d4e7a1c3f5b9d2e4a6c8f1b3d5e7a9c2f4b6d8e1a3';
+
+async function initApp() {
+  var sessionAuth = sessionStorage.getItem('xptusd_auth');
+  if (sessionAuth === 'true') {
+    showApp();
+    return;
+  }
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app-wrapper').style.display = 'none';
+  setTimeout(function() {
+    document.getElementById('login-password').focus();
+  }, 100);
+}
+
+async function attemptLogin() {
+  var input = document.getElementById('login-password').value;
+  var hash = await hashPassword(input);
+  var correctHash = await hashPassword('informer3!@');
+  if (hash === correctHash) {
+    sessionStorage.setItem('xptusd_auth', 'true');
+    showApp();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').focus();
+  }
+}
+
+function showApp() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-wrapper').style.display = 'block';
+  loadTrades();
+  document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
+  updateScore();
+}
+
+function handleLoginKey(e) {
+  if (e.key === 'Enter') attemptLogin();
+}
 
 function setStatus(msg, color) {
   var el = document.getElementById('sync-status');
@@ -655,10 +719,6 @@ function setStatus(msg, color) {
 
 async function loadTrades() {
   setStatus('Loading...', 'var(--amber)');
-  if (!binId) {
-    await createBin();
-    return;
-  }
   try {
     var res = await fetch(JSONBIN_URL + '/' + binId + '/latest', {
       headers: { 'X-Access-Key': JSONBIN_KEY }
@@ -900,12 +960,11 @@ function renderJournal() {
 }
 
 // Init
-document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
-updateScore();
-loadTrades();
 ['j-pnl','j-commission','j-swap'].forEach(function(id) {
   document.getElementById(id).addEventListener('input', updateNetPreview);
 });
+initApp();
 </script>
+</div>
 </body>
 </html>
