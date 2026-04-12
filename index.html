@@ -854,11 +854,9 @@ async function attemptLogin() {
 function showApp() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-wrapper').style.display = 'block';
-  loadGoalsData();
   loadTrades();
   document.getElementById('j-date').value = new Date().toISOString().split('T')[0];
   updateScore();
-  renderArchives();
 }
 
 function handleLoginKey(e) {
@@ -879,12 +877,16 @@ async function loadTrades() {
     if (!res.ok) throw new Error('Load failed: ' + res.status);
     var data = await res.json();
     trades = data.record.trades || [];
+    if (data.record.goals) {
+      goalsData = data.record.goals;
+    }
     setStatus('Synced', 'var(--green)');
   } catch(e) {
     setStatus('Load error — check connection', 'var(--red)');
     trades = [];
   }
   renderJournal();
+  renderArchives();
 }
 
 async function createBin() {
@@ -924,7 +926,7 @@ async function saveTrades() {
         'Content-Type': 'application/json',
         'X-Access-Key': JSONBIN_KEY
       },
-      body: JSON.stringify({ trades: trades })
+      body: JSON.stringify({ trades: trades, goals: goalsData })
     });
     if (!res.ok) throw new Error('Save failed: ' + res.status);
     setStatus('Saved ✓', 'var(--green)');
@@ -1134,7 +1136,7 @@ function loadGoalsData() {
 }
 
 function saveGoalsData() {
-  try { localStorage.setItem(GOALS_KEY, JSON.stringify(goalsData)); } catch(e) {}
+  saveTrades();
 }
 
 function getCycleTotal() {
