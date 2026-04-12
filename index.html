@@ -1097,7 +1097,7 @@ function renderJournal() {
     var grossStr = (gross >= 0 ? '+' : '') + '$' + gross.toFixed(0);
     var lot = t.lot || 0.5;
     return '<div class="trade-row" style="grid-template-columns:90px 50px 80px 1fr 70px 70px 70px 50px;">' +
-      '<span>' + t.date + '</span>' +
+      '<span>' + fmtDate(t.date) + '</span>' +
       '<span class="' + dirClass + '">' + t.dir + '</span>' +
       '<span>' + lot + ' lot</span>' +
       '<span class="trade-notes">' + (t.notes || '—') + '</span>' +
@@ -1112,6 +1112,13 @@ function renderJournal() {
 }
 
 // ── GOALS / CYCLE TRACKER ──────────────────────────────────────────
+function fmtDate(d) {
+  if (!d) return '—';
+  var parts = d.split('-');
+  if (parts.length !== 3) return d;
+  return parts[2] + '-' + parts[1] + '-' + parts[0];
+}
+
 var GOALS_KEY = 'xptusd_goals_v1';
 var goalsData = { cycleStart: null, payouts: [], archives: [] };
 var TIERS = [625, 1562.5, 3125, 6250];
@@ -1145,7 +1152,7 @@ function updateCycleTracker() {
   var total = getCycleTotal();
   var maxTier = 6250;
   var pct = Math.min((total / maxTier) * 100, 100);
-  document.getElementById('cycle-start-label').textContent = goalsData.cycleStart;
+  document.getElementById('cycle-start-label').textContent = fmtDate(goalsData.cycleStart);
   document.getElementById('cycle-total').textContent = (total >= 0 ? '+' : '') + '$' + total.toFixed(0);
   document.getElementById('cycle-bar').style.width = pct + '%';
   document.getElementById('cycle-bar').style.background = total >= maxTier ? 'var(--accent)' : total >= TIERS[2] ? 'var(--green)' : total >= TIERS[1] ? 'var(--amber)' : total >= TIERS[0] ? 'var(--amber)' : 'var(--green)';
@@ -1177,7 +1184,7 @@ function renderPayoutHistory() {
   document.getElementById('payout-total-label').textContent = '$' + totalNetto.toFixed(0);
   log.innerHTML = payouts.slice().reverse().map(function(p) {
     return '<div class="payout-row">' +
-      '<span>' + p.date + '</span>' +
+      '<span>' + fmtDate(p.date) + '</span>' +
       '<span style="color:var(--green);">$' + p.bruto.toFixed(0) + '</span>' +
       '<span style="color:var(--green);">$' + p.netto.toFixed(0) + '</span>' +
       '<span style="color:var(--muted);font-size:12px;">' + (p.note || '—') + '</span>' +
