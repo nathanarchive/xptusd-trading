@@ -7,24 +7,24 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0d0f0e;
-  --surface: #131614;
-  --surface2: #1a1d1b;
-  --border: #252826;
-  --border2: #2e322f;
-  --text: #e8ebe8;
-  --muted: #6b726b;
-  --subtle: #3a3f3a;
-  --green: #4ade80;
-  --green-dim: #1a3324;
-  --green-border: #2d5c40;
-  --amber: #fbbf24;
-  --amber-dim: #2d2210;
-  --amber-border: #5c420d;
-  --red: #f87171;
-  --red-dim: #2d1515;
-  --red-border: #5c2020;
-  --accent: #4ade80;
+  --bg: #f5f6f4;
+  --surface: #ffffff;
+  --surface2: #f0f2ef;
+  --border: #e2e6e0;
+  --border2: #d0d5ce;
+  --text: #1a1f1a;
+  --muted: #6b7569;
+  --subtle: #c8cec6;
+  --green: #16a34a;
+  --green-dim: #dcfce7;
+  --green-border: #86efac;
+  --amber: #d97706;
+  --amber-dim: #fef3c7;
+  --amber-border: #fcd34d;
+  --red: #dc2626;
+  --red-dim: #fee2e2;
+  --red-border: #fca5a5;
+  --accent: #16a34a;
   --mono: 'IBM Plex Mono', monospace;
   --sans: 'Syne', sans-serif;
 }
@@ -93,7 +93,7 @@ nav {
 }
 
 .nav-btn:hover { color: var(--text); }
-.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 
 /* MAIN */
 main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
@@ -130,7 +130,6 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
 .verdict-pill.go { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-border); }
 .verdict-pill.caution { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-border); }
 .verdict-pill.nogo { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-border); }
-
 .bar-track {
   height: 3px;
   background: var(--border2);
@@ -148,6 +147,7 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
   border-radius: 4px;
   margin-bottom: 10px;
   overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
 }
 
 .check-section-header {
@@ -286,7 +286,7 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
   font-size: 13px;
   padding: 12px 24px;
   background: var(--accent);
-  color: #0d0f0e;
+  color: #ffffff;
   border: none;
   cursor: pointer;
   border-radius: 2px;
@@ -464,11 +464,11 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
     <div style="font-family:var(--mono); font-size:20px; font-weight:500; color:var(--accent); letter-spacing:0.05em;">XPT/USD</div>
     <div style="font-size:12px; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; margin-top:4px;">Trading Assistant</div>
   </div>
-  <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--border-radius-lg); padding:32px; width:300px;">
+  <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--border-radius-lg); padding:32px; width:300px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
     <div style="font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:12px;">Password</div>
     <input type="password" id="login-password" onkeydown="handleLoginKey(event)" placeholder="Enter password" style="width:100%; font-family:var(--mono); font-size:14px; padding:10px 12px; background:var(--surface2); border:1px solid var(--border2); border-radius:4px; color:var(--text); outline:none; margin-bottom:12px;">
     <div id="login-error" style="display:none; font-family:var(--mono); font-size:12px; color:var(--red); margin-bottom:12px;">Incorrect password</div>
-    <button onclick="attemptLogin()" style="width:100%; font-family:var(--mono); font-size:13px; padding:11px; background:var(--accent); color:#0d0f0e; border:none; border-radius:4px; cursor:pointer; font-weight:500; letter-spacing:0.05em;">Unlock</button>
+    <button onclick="attemptLogin()" style="width:100%; font-family:var(--mono); font-size:13px; padding:11px; background:var(--accent); color:#ffffff; border:none; border-radius:4px; cursor:pointer; font-weight:500; letter-spacing:0.05em;">Unlock</button>
   </div>
 </div>
 
