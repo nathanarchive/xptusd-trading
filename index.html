@@ -886,6 +886,8 @@ async function loadTrades() {
     trades = [];
   }
   renderJournal();
+  updateCycleTracker();
+  renderPayoutHistory();
   renderArchives();
 }
 
@@ -941,6 +943,7 @@ function switchTab(name, btn) {
   document.querySelectorAll('.nav-btn').forEach(function(b) { b.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
+  if(name === 'goals') { updateCycleTracker(); renderPayoutHistory(); renderArchives(); }
 }
 
 function toggleCheck(id) {
@@ -1201,17 +1204,50 @@ function renderPayoutHistory() {
 function renderArchives() {
   var list = document.getElementById('archive-list');
   var archives = goalsData.archives || [];
-  if (archives.length === 0) { list.innerHTML = ''; return; }
+  if (archives.length === 0) { list.innerHTML = '<div style="font-family:var(--mono);font-size:12px;color:var(--muted);padding:12px 0;">No archived accounts yet.</div>'; return; }
   list.innerHTML = archives.map(function(a, i) {
-    var tradeCount = (a.trades || []).length;
-    var payoutCount = (a.payouts || []).length;
-    var totalNetto = (a.payouts || []).reduce(function(s, p) { return s + (p.netto || 0); }, 0);
-    return '<details class="archive-card">' +
-      '<summary>📁 ' + a.label + ' &nbsp;—&nbsp; ' + tradeCount + ' trades, $' + totalNetto.toFixed(0) + ' netto earned</summary>' +
-      '<div style="margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--muted);">' +
-      '<div>Trades logged: ' + tradeCount + '</div>' +
-      '<div>Payouts: ' + payoutCount + '</div>' +
-      '<div>Total netto: $' + totalNetto.toFixed(0) + '</div>' +
+    var tradeList = (a.trades || []);
+    var payoutList = (a.payouts || []);
+    var totalNetto = payoutList.reduce(function(s, p) { return s + (p.netto || 0); }, 0);
+    var totalBruto = payoutList.reduce(function(s, p) { return s + (p.bruto || 0); }, 0);
+    var wins = tradeList.filter(function(t){ return (t.netPnl||0) > 0; }).length;
+    var wr = tradeList.length > 0 ? Math.round(wins/tradeList.length*100) : 0;
+
+    var tradeRows = tradeList.length === 0 ? '<div style="color:var(--muted);font-size:11px;padding:8px 0;">No trades logged.</div>' :
+      '<table style="width:100%;border-collapse:collapse;margin-top:8px;">' +
+      '<thead><tr style="border-bottom:1px solid var(--border2);">' +
+      '<th style="text-align:left;font-size:10px;color:var(--muted);padding:4px 6px;">DATE</th>' +
+      '<th style="text-align:left;font-size:10px;color:var(--muted);padding:4px 6px;">DIR</th>' +
+      '<th style="text-align:right;font-size:10px;color:var(--muted);padding:4px 6px;">ENTRY</th>' +
+      '<th style="text-align:right;font-size:10px;color:var(--muted);padding:4px 6px;">EXIT</th>' +
+      '<th style="text-align:right;font-size:10px;color:var(--muted);padding:4px 6px;">NET P&L</th>' +
+      '</tr></thead><tbody>' +
+      tradeList.map(function(t) {
+        var pnl = t.netPnl || 0;
+        var clr = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red)' : 'var(--muted)';
+        return '<tr style="border-bottom:1px solid var(--border);">' +
+          '<td style="font-size:11px;padding:4px 6px;font-family:var(--mono);">' + (t.date||'') + '</td>' +
+          '<td style="font-size:11px;padding:4px 6px;font-family:var(--mono);">' + (t.direction||'') + '</td>' +
+          '<td style="font-size:11px;padding:4px 6px;font-family:var(--mono);text-align:right;">' + (t.entry||'') + '</td>' +
+          '<td style="font-size:11px;padding:4px 6px;font-family:var(--mono);text-align:right;">' + (t.exit||'') + '</td>' +
+          '<td style="font-size:11px;padding:4px 6px;font-family:var(--mono);text-align:right;color:'+clr+';">$' + pnl.toFixed(2) + '</td>' +
+          '</tr>';
+      }).join('') + '</tbody></table>';
+
+    var payoutRows = payoutList.length === 0 ? '<div style="color:var(--muted);font-size:11px;padding:4px 0;">No payouts.</div>' :
+      payoutList.map(function(p) {
+        return '<div style="font-size:11px;font-family:var(--mono);padding:3px 0;border-bottom:1px solid var(--border);">'+
+          p.date + ' &nbsp;|&nbsp; Bruto: $'+Number(p.bruto).toFixed(0)+' &nbsp;|&nbsp; Netto: $'+Number(p.netto).toFixed(0)+(p.note?' &nbsp;|&nbsp; '+p.note:'')+'</div>';
+      }).join('');
+
+    return '<details class="archive-card" style="margin-bottom:12px;">' +
+      '<summary style="font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;padding:4px 0;">📁 ' + a.label +
+      ' &nbsp;—&nbsp; ' + tradeList.length + ' trades &nbsp;|&nbsp; WR: ' + wr + '% &nbsp;|&nbsp; Netto: $' + totalNetto.toFixed(0) + '</summary>' +
+      '<div style="margin-top:12px;">' +
+      '<div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em;">Trades</div>' +
+      tradeRows +
+      '<div style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:14px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.05em;">Payouts — Bruto: $' + totalBruto.toFixed(0) + ' | Netto: $' + totalNetto.toFixed(0) + '</div>' +
+      payoutRows +
       '</div></details>';
   }).join('');
 }
