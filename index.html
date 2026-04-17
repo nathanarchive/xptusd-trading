@@ -1208,7 +1208,7 @@ function renderArchives() {
   list.innerHTML = archives.map(function(a, i) {
     var tradeList = (a.trades || []);
     var payoutList = (a.payouts || []);
-    var totalNetto = payoutList.reduce(function(s, p) { return s + (p.netto || 0); }, 0);
+    var totalNetto = tradeList.reduce(function(s, t) { return s + (t.netPnl || 0); }, 0);
     var totalBruto = payoutList.reduce(function(s, p) { return s + (p.bruto || 0); }, 0);
     var wins = tradeList.filter(function(t){ return (t.netPnl||0) > 0; }).length;
     var wr = tradeList.length > 0 ? Math.round(wins/tradeList.length*100) : 0;
