@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XPTUSD Trading Assistant</title>
+<title>My Trading Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -461,8 +461,7 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
 
 <div id="login-screen" style="display:none; position:fixed; inset:0; background:var(--bg); z-index:9999; align-items:center; justify-content:center; flex-direction:column; gap:24px;">
   <div style="text-align:center; margin-bottom:8px;">
-    <div style="font-family:var(--mono); font-size:20px; font-weight:500; color:var(--accent); letter-spacing:0.05em;">XPT/USD</div>
-    <div style="font-size:12px; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; margin-top:4px;">Trading Assistant</div>
+    <div style="font-family:var(--mono); font-size:20px; font-weight:500; color:var(--accent); letter-spacing:0.05em;">My Trading Assistant</div>
   </div>
   <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--border-radius-lg); padding:32px; width:300px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
     <div style="font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-bottom:12px;">Password</div>
@@ -476,8 +475,7 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
 
 <header>
   <div class="logo">
-    <span class="logo-pair">XPT/USD</span>
-    <span class="logo-label">Trading Assistant</span>
+    <span class="logo-label">My Trading Assistant</span>
   </div>
   <div class="header-stats">
     <div class="hstat">
@@ -684,7 +682,7 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
         </div>
         <div style="text-align:right;">
           <div style="font-family:var(--mono);font-size:32px;font-weight:500;color:var(--text);" id="cycle-total">$0</div>
-          <div style="font-size:12px;color:var(--muted);">bruto this cycle</div>
+          <div style="font-size:12px;color:var(--muted);">net this cycle</div>
         </div>
       </div>
 
@@ -697,8 +695,12 @@ main { flex: 1; padding: 32px; max-width: 960px; width: 100%; margin: 0 auto; }
           <div style="position:absolute;top:-4px;left:50%;width:1px;height:16px;background:var(--amber);opacity:0.8;z-index:2;"></div>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:16px;">
-        <span>$0</span><span>T1 $625</span><span>T2 $1,563</span><span>T3 $3,125</span><span style="color:var(--accent);">T4 $6,250</span>
+      <div style="position:relative;height:16px;font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:16px;">
+        <span style="position:absolute;left:0;">$0</span>
+        <span style="position:absolute;left:10%;transform:translateX(-50%);">T1 $625</span>
+        <span style="position:absolute;left:25%;transform:translateX(-50%);">T2 $1,563</span>
+        <span style="position:absolute;left:50%;transform:translateX(-50%);">T3 $3,125</span>
+        <span style="position:absolute;right:0;color:var(--accent);">T4 $6,250</span>
       </div>
 
       <!-- Tier pills -->
@@ -899,7 +901,7 @@ async function createBin() {
       headers: {
         'Content-Type': 'application/json',
         'X-Access-Key': JSONBIN_KEY,
-        'X-Bin-Name': 'XPTUSD Journal',
+        'X-Bin-Name': 'My Trading Journal',
         'X-Bin-Private': 'true'
       },
       body: JSON.stringify({ trades: [] })
@@ -1147,7 +1149,15 @@ function getCycleTotal() {
   var start = new Date(goalsData.cycleStart);
   return trades.filter(function(t) {
     return new Date(t.date) >= start;
-  }).reduce(function(sum, t) { return sum + (t.pnl || 0); }, 0);
+  }).reduce(function(sum, t) {
+    var net;
+    if (t.netPnl !== undefined && t.netPnl !== null) {
+      net = t.netPnl;
+    } else {
+      net = (t.pnl || 0) + (t.commission || 0) + (t.swap || 0);
+    }
+    return sum + net;
+  }, 0);
 }
 
 function updateCycleTracker() {
@@ -1325,7 +1335,7 @@ function exportCSV() {
 }
 
 function exportText() {
-  var lines = ['XPTUSD Trading Journal Export — ' + new Date().toLocaleDateString(), ''];
+  var lines = ['My Trading Journal Export — ' + new Date().toLocaleDateString(), ''];
   lines.push('TRADES (' + trades.length + ')');
   trades.forEach(function(t) {
     lines.push(t.date + ' | ' + t.dir + ' | Entry ' + t.entry + ' | Net $' + (t.netPnl||t.pnl||0).toFixed(0) + ' | ' + t.result + (t.notes ? ' | ' + t.notes : ''));
